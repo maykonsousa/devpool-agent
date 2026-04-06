@@ -1,10 +1,7 @@
 {
-  "builds": [
-    { "src": "api/**/*.py", "use": "@vercel/python" }
-  ],
   "crons": [
-    { "path": "/api/cron/rss", "schedule": "0 */2 * * *" },
-    { "path": "/api/cron/github_repos", "schedule": "0 */4 * * *" },
-    { "path": "/api/cron/scraper", "schedule": "0 */6 * * *" }
+    { "path": "/api/cron-rss", "schedule": "0 */2 * * *" },
+    { "path": "/api/cron-github", "schedule": "0 */4 * * *" },
+    { "path": "/api/cron-scraper", "schedule": "0 */6 * * *" }
   ]
 }
