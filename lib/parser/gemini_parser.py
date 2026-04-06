@@ -8,7 +8,7 @@ from lib.config import GEMINI_API_KEY, generate_external_id
 
 logger = logging.getLogger(__name__)
 
-GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
 
 def _build_prompt(raw_text: str, lookups: dict[str, Any]) -> str:
