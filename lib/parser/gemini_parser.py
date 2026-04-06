@@ -23,8 +23,15 @@ Analise o texto abaixo e extraia dados estruturados da vaga.
 
 REGRAS:
 - Retorne SOMENTE um JSON válido, sem markdown, sem explicações.
-- Se não encontrar email, use string vazia.
-- Mantenha a descrição em português.
+- Se não encontrar email, use string vazia no campo email.
+- A descrição DEVE seguir o padrão estrutural abaixo.
+- A descrição NÃO PODE conter nenhum tipo de contato: emails, telefones, links, redes sociais, nomes de recrutadores.
+- Remova hashtags, emojis e formatações especiais da descrição.
+
+PADRÃO DA DESCRIÇÃO (siga esta estrutura exata):
+"Sobre a vaga:\\n[Resumo breve da posição e da empresa em 2-3 frases]\\n\\nResponsabilidades:\\n- [responsabilidade 1]\\n- [responsabilidade 2]\\n- [...]\\n\\nRequisitos obrigatórios:\\n- [requisito 1]\\n- [requisito 2]\\n- [...]\\n\\nDiferenciais:\\n- [diferencial 1]\\n- [diferencial 2]\\n- [...]\\n\\nBenefícios:\\n- [benefício 1, se mencionado]\\n- [...]"
+
+Se alguma seção não tiver informações no texto original, omita essa seção.
 
 CARGOS VÁLIDOS (use exatamente um destes): {', '.join(roles)}
 MODELOS DE TRABALHO VÁLIDOS: {', '.join(position_models)}
@@ -35,12 +42,12 @@ SENIORIDADE: junior, pleno, senior, especialista, estagio
 Retorne este JSON:
 {{
   "role": "cargo da lista acima",
-  "description": "descrição completa em português",
+  "description": "descrição estruturada conforme padrão acima, SEM contatos",
   "seniority": "nível de senioridade",
   "model": "modelo da lista acima",
   "type": "tipo da lista acima",
   "companyName": "nome da empresa",
-  "email": "email para candidatura ou vazio",
+  "email": "email para candidatura extraído do texto original, ou vazio",
   "mandatory_techs": ["tech1", "tech2"],
   "desirable_techs": ["tech1", "tech2"],
   "city": "cidade ou vazio",
