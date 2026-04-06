@@ -103,7 +103,7 @@ class handler(BaseHTTPRequestHandler):
     def _debug(self):
         import httpx
         from lib.publisher.lookups_client import get_lookups
-        from lib.parser.claude_parser import parse_job_posting
+        from lib.parser.claude_parser import parse_job_posting_debug
         from lib.config import DEVPOOL_API_URL
 
         try:
@@ -130,7 +130,7 @@ class handler(BaseHTTPRequestHandler):
 
             raw_text = f"Título: {title}\nLabels: {', '.join(labels)}\n\n{body}"
 
-            parsed = parse_job_posting(
+            debug_result = parse_job_posting_debug(
                 raw_text=raw_text,
                 source="debug",
                 identifier=str(issue["number"]),
@@ -142,7 +142,9 @@ class handler(BaseHTTPRequestHandler):
                 "lookups": lookups_info,
                 "issue": {"number": issue["number"], "title": title},
                 "raw_text_length": len(raw_text),
-                "parsed": parsed,
+                "claude_raw": debug_result.get("raw"),
+                "enriched": debug_result.get("enriched"),
+                "error": debug_result.get("error"),
             })
         except Exception as e:
             self._json_response(500, {"error": str(e)})

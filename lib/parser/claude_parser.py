@@ -178,6 +178,47 @@ def parse_job_posting(
         return None
 
 
+def parse_job_posting_debug(
+    raw_text: str,
+    source: str,
+    identifier: str,
+    source_url: str,
+    lookups: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    """Versão debug que retorna raw + enriched para diagnóstico."""
+    if lookups is None:
+        lookups = {}
+
+    tool = _build_tool(lookups)
+    system_prompt = _build_system_prompt(lookups)
+
+    try:
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=1024,
+            system=system_prompt,
+            tools=[tool],
+            tool_choice={"type": "tool", "name": "register_position"},
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Extraia os dados desta vaga:\n\n{raw_text[:4000]}",
+                }
+            ],
+        )
+
+        for block in response.content:
+            if block.type == "tool_use" and block.name == "register_position":
+                raw_extracted = block.input
+                enriched = _enrich(raw_extracted, source, identifier, source_url, lookups)
+                return {"raw": raw_extracted, "enriched": enriched}
+
+        return {"error": "Claude não retornou tool_use"}
+
+    except anthropic.APIError as e:
+        return {"error": str(e)}
+
+
 def _enrich(
     data: dict[str, Any],
     source: str,
