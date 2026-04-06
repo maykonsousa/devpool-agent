@@ -1,15 +1,4 @@
 {
-  "rewrites": [
-    { "source": "/api/health", "destination": "/api/health" },
-    { "source": "/api/cron-rss", "destination": "/api/cron-rss" },
-    { "source": "/api/cron-github", "destination": "/api/cron-github" },
-    { "source": "/api/cron-scraper", "destination": "/api/cron-scraper" }
-  ],
-  "functions": {
-    "api/cron-rss.py": { "maxDuration": 60 },
-    "api/cron-github.py": { "maxDuration": 60 },
-    "api/cron-scraper.py": { "maxDuration": 60 }
-  },
   "crons": [
     { "path": "/api/cron-rss", "schedule": "0 */2 * * *" },
     { "path": "/api/cron-github", "schedule": "0 */4 * * *" },
