@@ -77,9 +77,9 @@ LINKEDIN_QUERIES_PER_RUN = 3
 LINKEDIN_RESULTS_PER_QUERY = 5
 
 # --- Constantes ---
-BATCH_SIZE = 20
+BATCH_SIZE = 5
 MAX_ITEMS_PER_SOURCE = 10
-REQUEST_TIMEOUT = 30
+REQUEST_TIMEOUT = 60
 
 
 def generate_external_id(source: str, identifier: str) -> str:
