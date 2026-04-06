@@ -2,7 +2,7 @@ import os
 import hashlib
 
 # --- API Keys ---
-ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+GEMINI_API_KEY = os.environ.get("GOOGLE_GENERATIVE_AI_API_KEY", "")
 DEVPOOL_API_URL = os.environ.get("DEVPOOL_API_URL", "")
 DEVPOOL_API_KEY = os.environ.get("DEVPOOL_API_KEY", "")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")

@@ -10,7 +10,7 @@ from lib.config import (
     LINKEDIN_RESULTS_PER_QUERY,
     REQUEST_TIMEOUT,
 )
-from lib.parser.claude_parser import parse_job_posting
+from lib.parser.gemini_parser import parse_job_posting
 
 logger = logging.getLogger(__name__)
 

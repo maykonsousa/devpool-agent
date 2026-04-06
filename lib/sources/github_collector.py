@@ -4,7 +4,7 @@ from typing import Any, Optional
 import httpx
 
 from lib.config import GITHUB_REPOS, GITHUB_TOKEN, MAX_ITEMS_PER_SOURCE, REQUEST_TIMEOUT
-from lib.parser.claude_parser import parse_job_posting
+from lib.parser.gemini_parser import parse_job_posting
 
 logger = logging.getLogger(__name__)
 

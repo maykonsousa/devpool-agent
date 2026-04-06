@@ -103,7 +103,7 @@ class handler(BaseHTTPRequestHandler):
     def _debug(self):
         import httpx
         from lib.publisher.lookups_client import get_lookups
-        from lib.parser.claude_parser import parse_job_posting_debug
+        from lib.parser.gemini_parser import parse_job_posting_debug
         from lib.config import DEVPOOL_API_URL
 
         try:
