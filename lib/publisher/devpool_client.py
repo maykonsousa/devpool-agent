@@ -60,13 +60,20 @@ def _send_batch(batch: list[dict[str, Any]]) -> Optional[dict[str, Any]]:
             )
             return data
 
+        error_body = response.text[:500]
         logger.error(
             "Erro ao enviar lote: status=%d body=%s",
             response.status_code,
-            response.text[:200],
+            error_body,
         )
-        return None
+        return {
+            "summary": {"created": 0, "skipped": 0, "errors": len(batch)},
+            "results": [{"status": "error", "message": f"HTTP {response.status_code}: {error_body}"}],
+        }
 
     except httpx.HTTPError as e:
         logger.error("Erro HTTP ao enviar lote: %s", str(e))
-        return None
+        return {
+            "summary": {"created": 0, "skipped": 0, "errors": len(batch)},
+            "results": [{"status": "error", "message": str(e)}],
+        }
