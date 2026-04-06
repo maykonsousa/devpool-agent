@@ -8,34 +8,22 @@ DEVPOOL_API_KEY = os.environ.get("DEVPOOL_API_KEY", "")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 
 # --- Fontes RSS ---
-RSS_FEEDS = [
-    {
-        "name": "programathor",
-        "url": "https://programathor.com.br/feed",
-        "type": "rss",
-    },
-    {
-        "name": "remotive",
-        "url": "https://remotive.com/api/remote-jobs?limit=20",
-        "type": "json",
-    },
-]
+RSS_FEEDS = []
 
 # --- Repos GitHub (issues como vagas) ---
 GITHUB_REPOS = [
     "frontendbr/vagas",
     "backend-br/vagas",
     "react-brasil/vagas",
+    "vuejs-br/vagas",
+    "phpdevbr/vagas",
+    "Gommunity/vagas",
+    "androiddevbr/vagas",
+    "CocoaHeadsBrasil/vagas",
 ]
 
 # --- Sites para scraping ---
-SCRAPER_SOURCES = [
-    {
-        "name": "trampos",
-        "url": "https://trampos.co/oportunidades",
-        "selector": "article.job",
-    },
-]
+SCRAPER_SOURCES = []
 
 # --- Mapeamento de enums para normalização ---
 SENIORITY_MAP = {
