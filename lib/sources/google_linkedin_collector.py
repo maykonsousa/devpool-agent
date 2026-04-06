@@ -1,8 +1,6 @@
 import logging
 import random
-import re
 from typing import Any, Optional
-from urllib.parse import quote_plus
 
 import httpx
 from bs4 import BeautifulSoup
@@ -11,11 +9,18 @@ from lib.config import (
     LINKEDIN_QUERIES_PER_RUN,
     LINKEDIN_RESULTS_PER_QUERY,
     REQUEST_TIMEOUT,
-    generate_external_id,
 )
 from lib.parser.claude_parser import parse_job_posting
 
 logger = logging.getLogger(__name__)
+
+# Google Custom Search JSON API
+# Criar em: https://programmablesearchengine.google.com/
+# API Key em: https://console.cloud.google.com/apis/credentials
+GOOGLE_API_KEY = __import__("os").environ.get("GOOGLE_CSE_API_KEY", "")
+GOOGLE_CSE_ID = __import__("os").environ.get("GOOGLE_CSE_ID", "")
+
+GOOGLE_CSE_URL = "https://www.googleapis.com/customsearch/v1"
 
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -23,16 +28,22 @@ USER_AGENT = (
 )
 
 SEARCH_TEMPLATES = [
-    'site:linkedin.com/posts "{role}" ("vaga" OR "contratando" OR "oportunidade") ("email" OR "enviar currículo")',
-    'site:linkedin.com/feed/update "{role}" ("vaga" OR "estamos contratando") ("email" OR "cv para")',
-    'site:linkedin.com/posts "{role}" ("{tech}") ("remoto" OR "CLT" OR "PJ") "email"',
+    '"{role}" ("vaga" OR "contratando" OR "oportunidade") ("email" OR "enviar currículo")',
+    '"{role}" ("vaga" OR "estamos contratando") ("email" OR "cv para") "{tech}"',
+    '"{role}" ("remoto" OR "CLT" OR "PJ") ("email" OR "candidatar") "{tech}"',
 ]
 
 
 def collect(lookups: Optional[dict[str, Any]] = None) -> list[dict[str, Any]]:
-    """Coleta vagas de posts do LinkedIn via Google Search."""
+    """Coleta vagas de posts do LinkedIn via Google Custom Search API."""
     if not lookups:
         logger.warning("Lookups não disponíveis, pulando coleta LinkedIn")
+        return []
+
+    if not GOOGLE_API_KEY or not GOOGLE_CSE_ID:
+        logger.warning(
+            "GOOGLE_CSE_API_KEY ou GOOGLE_CSE_ID não configurados, pulando LinkedIn"
+        )
         return []
 
     roles = lookups.get("roles", [])
@@ -48,10 +59,12 @@ def collect(lookups: Optional[dict[str, Any]] = None) -> list[dict[str, Any]]:
         try:
             tech = random.choice(techs) if techs else ""
             query = _build_query(role, tech)
-            urls = _google_search(query)
-            items = _process_urls(urls, role, lookups)
+            urls = _google_cse_search(query)
+            items = _process_urls(urls, lookups)
             positions.extend(items)
-            logger.info("LinkedIn [%s]: %d vagas de %d URLs", role, len(items), len(urls))
+            logger.info(
+                "LinkedIn [%s]: %d vagas de %d URLs", role, len(items), len(urls)
+            )
         except Exception as e:
             logger.error("Erro ao buscar LinkedIn [%s]: %s", role, str(e))
 
@@ -59,48 +72,48 @@ def collect(lookups: Optional[dict[str, Any]] = None) -> list[dict[str, Any]]:
 
 
 def _build_query(role: str, tech: str) -> str:
-    """Monta query booleana para Google."""
+    """Monta query booleana."""
     template = random.choice(SEARCH_TEMPLATES)
     return template.format(role=role, tech=tech)
 
 
-def _google_search(query: str) -> list[str]:
-    """Busca no Google e retorna URLs de posts do LinkedIn."""
-    encoded = quote_plus(query)
-    url = f"https://www.google.com/search?q={encoded}&num={LINKEDIN_RESULTS_PER_QUERY}"
-
+def _google_cse_search(query: str) -> list[str]:
+    """Busca via Google Custom Search JSON API e retorna URLs."""
     try:
         response = httpx.get(
-            url,
-            headers={"User-Agent": USER_AGENT},
+            GOOGLE_CSE_URL,
+            params={
+                "key": GOOGLE_API_KEY,
+                "cx": GOOGLE_CSE_ID,
+                "q": query,
+                "num": LINKEDIN_RESULTS_PER_QUERY,
+                "siteSearch": "linkedin.com/posts",
+                "siteSearchFilter": "i",
+                "lr": "lang_pt",
+            },
             timeout=REQUEST_TIMEOUT,
-            follow_redirects=True,
         )
         response.raise_for_status()
+        data = response.json()
 
-        soup = BeautifulSoup(response.text, "lxml")
-        links = []
+        urls = []
+        for item in data.get("items", []):
+            link = item.get("link", "")
+            if "linkedin.com" in link:
+                urls.append(link)
 
-        for a_tag in soup.select("a[href]"):
-            href = a_tag.get("href", "")
-            linkedin_urls = re.findall(
-                r"https?://(?:www\.)?linkedin\.com/(?:posts|feed/update)/[^\s&\"]+",
-                href,
-            )
-            links.extend(linkedin_urls)
-
-        unique = list(dict.fromkeys(links))[:LINKEDIN_RESULTS_PER_QUERY]
-        logger.info("Google: %d URLs LinkedIn encontradas para: %s", len(unique), query[:80])
-        return unique
+        logger.info(
+            "Google CSE: %d URLs para: %s", len(urls), query[:80]
+        )
+        return urls
 
     except httpx.HTTPError as e:
-        logger.error("Erro Google Search: %s", str(e))
+        logger.error("Erro Google CSE: %s", str(e))
         return []
 
 
 def _process_urls(
     urls: list[str],
-    role: str,
     lookups: dict[str, Any],
 ) -> list[dict[str, Any]]:
     """Acessa posts do LinkedIn e extrai vagas."""
@@ -142,7 +155,6 @@ def _fetch_linkedin_post(url: str) -> str:
 
         soup = BeautifulSoup(response.text, "lxml")
 
-        # LinkedIn public posts têm o conteúdo em diferentes seletores
         selectors = [
             "div.feed-shared-update-v2__description",
             "div.attributed-text-segment-list__container",
