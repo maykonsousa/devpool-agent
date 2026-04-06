@@ -10,11 +10,10 @@ class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         from lib.sources.web_scraper import collect
         from lib.publisher.devpool_client import publish_positions
-        from lib.publisher.lookups_client import get_lookups, setup_agent_user
+        from lib.publisher.lookups_client import get_lookups
         from lib.config import DEVPOOL_API_URL
 
         try:
-            setup_agent_user(DEVPOOL_API_URL)
             lookups = get_lookups(DEVPOOL_API_URL)
 
             logger.info("Iniciando scraping de sites...")
