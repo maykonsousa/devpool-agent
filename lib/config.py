@@ -24,8 +24,6 @@ RSS_FEEDS = [
 # --- Repos GitHub (issues como vagas) ---
 GITHUB_REPOS = [
     "frontendbr/vagas",
-    "backend-br/vagas",
-    "react-brasil/vagas",
 ]
 
 # --- Sites para scraping ---
@@ -85,9 +83,9 @@ TYPE_MAP = {
 }
 
 # --- Constantes ---
-BATCH_SIZE = 20
-MAX_ITEMS_PER_SOURCE = 10
-REQUEST_TIMEOUT = 30
+BATCH_SIZE = 10
+MAX_ITEMS_PER_SOURCE = 5
+REQUEST_TIMEOUT = 10
 
 
 def generate_external_id(source: str, identifier: str) -> str:
