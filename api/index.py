@@ -17,6 +17,7 @@ class handler(BaseHTTPRequestHandler):
             "/api/cron-rss": self._cron_rss,
             "/api/cron-github": self._cron_github,
             "/api/cron-scraper": self._cron_scraper,
+            "/api/cron-linkedin": self._cron_linkedin,
         }
 
         route_handler = routes.get(path, self._not_found)
@@ -96,6 +97,31 @@ class handler(BaseHTTPRequestHandler):
             })
         except Exception as e:
             logger.error("Erro cron Scraper: %s", str(e))
+            self._json_response(500, {"status": "error", "message": str(e)})
+
+    def _cron_linkedin(self):
+        from lib.sources.google_linkedin_collector import collect
+        from lib.publisher.devpool_client import publish_positions
+        from lib.publisher.lookups_client import get_lookups
+        from lib.config import DEVPOOL_API_URL
+
+        try:
+            lookups = get_lookups(DEVPOOL_API_URL)
+            positions = collect(lookups=lookups)
+            result = publish_positions(positions)
+            self._json_response(200, {
+                "status": "success",
+                "source": "linkedin",
+                "summary": {
+                    "collected": len(positions),
+                    "created": result["created"],
+                    "skipped": result["skipped"],
+                    "errors": result["errors"],
+                },
+                "results": result.get("results", []),
+            })
+        except Exception as e:
+            logger.error("Erro cron LinkedIn: %s", str(e))
             self._json_response(500, {"status": "error", "message": str(e)})
 
     def _not_found(self):

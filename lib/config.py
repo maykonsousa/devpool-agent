@@ -72,6 +72,10 @@ TYPE_MAP = {
     "internship": "estagio",
 }
 
+# --- LinkedIn/Google Search ---
+LINKEDIN_QUERIES_PER_RUN = 3
+LINKEDIN_RESULTS_PER_QUERY = 5
+
 # --- Constantes ---
 BATCH_SIZE = 20
 MAX_ITEMS_PER_SOURCE = 10
