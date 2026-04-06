@@ -68,6 +68,7 @@ class handler(BaseHTTPRequestHandler):
                     "skipped": result["skipped"],
                     "errors": result["errors"],
                 },
+                "results": result.get("results", []),
             })
         except Exception as e:
             logger.error("Erro cron GitHub: %s", str(e))
