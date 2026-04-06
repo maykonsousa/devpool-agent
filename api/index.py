@@ -18,6 +18,7 @@ class handler(BaseHTTPRequestHandler):
             "/api/cron-github": self._cron_github,
             "/api/cron-scraper": self._cron_scraper,
             "/api/cron-linkedin": self._cron_linkedin,
+            "/api/debug": self._debug,
         }
 
         route_handler = routes.get(path, self._not_found)
@@ -98,6 +99,53 @@ class handler(BaseHTTPRequestHandler):
         except Exception as e:
             logger.error("Erro cron Scraper: %s", str(e))
             self._json_response(500, {"status": "error", "message": str(e)})
+
+    def _debug(self):
+        import httpx
+        from lib.publisher.lookups_client import get_lookups
+        from lib.parser.claude_parser import parse_job_posting
+        from lib.config import DEVPOOL_API_URL
+
+        try:
+            lookups = get_lookups(DEVPOOL_API_URL)
+            lookups_info = {
+                "roles": len(lookups.get("roles", [])),
+                "technologies": len(lookups.get("technologies", [])),
+                "positionTypes": lookups.get("positionTypes", []),
+                "positionModels": lookups.get("positionModels", []),
+            }
+
+            # Pegar 1 issue
+            resp = httpx.get(
+                "https://api.github.com/repos/frontendbr/vagas/issues",
+                headers={"Accept": "application/vnd.github.v3+json"},
+                params={"state": "open", "per_page": 1},
+                timeout=15,
+            )
+            issues = resp.json()
+            issue = issues[0]
+            title = issue.get("title", "")
+            body = issue.get("body", "")[:2000]
+            labels = [l["name"] for l in issue.get("labels", [])]
+
+            raw_text = f"Título: {title}\nLabels: {', '.join(labels)}\n\n{body}"
+
+            parsed = parse_job_posting(
+                raw_text=raw_text,
+                source="debug",
+                identifier=str(issue["number"]),
+                source_url=issue.get("html_url", ""),
+                lookups=lookups,
+            )
+
+            self._json_response(200, {
+                "lookups": lookups_info,
+                "issue": {"number": issue["number"], "title": title},
+                "raw_text_length": len(raw_text),
+                "parsed": parsed,
+            })
+        except Exception as e:
+            self._json_response(500, {"error": str(e)})
 
     def _cron_linkedin(self):
         from lib.sources.google_linkedin_collector import collect

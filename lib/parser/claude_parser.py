@@ -207,9 +207,7 @@ def _enrich(
         logger.warning("Type '%s' não está na lista válida, descartando", contract_type)
         return None
 
-    email = data.get("email", "")
-    if not email:
-        return None
+    email = data.get("email", "") or "sem-email@pendente.devpool.com.br"
 
     # Filtrar techs para apenas as que existem no DevPool
     def filter_techs(tech_list):
