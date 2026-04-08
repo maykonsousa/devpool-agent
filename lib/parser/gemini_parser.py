@@ -29,6 +29,10 @@ REGRAS:
 - Remova hashtags, emojis e formatações especiais da descrição.
 - Se o modelo de trabalho for "Remoto", NÃO preencha city e state (retorne strings vazias).
 - Só preencha city e state se o modelo for "Presencial" ou "Híbrido".
+- Separe CLARAMENTE as tecnologias entre obrigatórias e desejáveis:
+  - mandatory_techs: tecnologias listadas como "requisitos", "obrigatório", "necessário", "experiência com", "conhecimento em"
+  - desirable_techs: tecnologias listadas como "diferencial", "desejável", "nice to have", "bônus", "será um plus"
+  - Se não houver distinção clara no texto, considere TODAS como obrigatórias.
 
 PADRÃO DA DESCRIÇÃO (siga esta estrutura exata):
 "Sobre a vaga:\\n[Resumo breve da posição e da empresa em 2-3 frases]\\n\\nResponsabilidades:\\n- [responsabilidade 1]\\n- [responsabilidade 2]\\n- [...]\\n\\nRequisitos obrigatórios:\\n- [requisito 1]\\n- [requisito 2]\\n- [...]\\n\\nDiferenciais:\\n- [diferencial 1]\\n- [diferencial 2]\\n- [...]\\n\\nBenefícios:\\n- [benefício 1, se mencionado]\\n- [...]"
