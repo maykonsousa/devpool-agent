@@ -27,6 +27,8 @@ REGRAS:
 - A descrição DEVE seguir o padrão estrutural abaixo.
 - A descrição NÃO PODE conter nenhum tipo de contato: emails, telefones, links, redes sociais, nomes de recrutadores.
 - Remova hashtags, emojis e formatações especiais da descrição.
+- Se o modelo de trabalho for "Remoto", NÃO preencha city e state (retorne strings vazias).
+- Só preencha city e state se o modelo for "Presencial" ou "Híbrido".
 
 PADRÃO DA DESCRIÇÃO (siga esta estrutura exata):
 "Sobre a vaga:\\n[Resumo breve da posição e da empresa em 2-3 frases]\\n\\nResponsabilidades:\\n- [responsabilidade 1]\\n- [responsabilidade 2]\\n- [...]\\n\\nRequisitos obrigatórios:\\n- [requisito 1]\\n- [requisito 2]\\n- [...]\\n\\nDiferenciais:\\n- [diferencial 1]\\n- [diferencial 2]\\n- [...]\\n\\nBenefícios:\\n- [benefício 1, se mencionado]\\n- [...]"
